@@ -1,7 +1,7 @@
 package yaml
 
 import (
-	"go-kit/encode"
+	"github.com/RavenHuo/go-kit/encode"
 	"gopkg.in/yaml.v3"
 )
 

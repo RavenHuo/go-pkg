@@ -3,7 +3,7 @@ package xml
 import (
 	"encoding/xml"
 
-	"go-kit/encode"
+	"github.com/RavenHuo/go-kit/encode"
 
 )
 
