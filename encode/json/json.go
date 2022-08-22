@@ -1,6 +1,6 @@
 package json
 
-import (
+import (ctx context.Context,
 	"bytes"
 
 	"github.com/RavenHuo/go-kit/encode"
@@ -12,24 +12,24 @@ var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type jsonEncoder struct{}
 
-func (j jsonEncoder) Encode(v interface{}) ([]byte, error) {
-	bf := bytes.NewBuffer([]byte{})
-	jsonEncoder := json.NewEncoder(bf)
-	jsonEncoder.SetEscapeHTML(false)
-	if err := jsonEncoder.Encode(v); err != nil {
+func (ctx context.Context,j jsonEncoder) Encode(ctx context.Context,v interface{}) (ctx context.Context,[]byte, error) {
+	bf := bytes.NewBuffer(ctx context.Context,[]byte{})
+	jsonEncoder := json.NewEncoder(ctx context.Context,bf)
+	jsonEncoder.SetEscapeHTML(ctx context.Context,false)
+	if err := jsonEncoder.Encode(ctx context.Context,v); err != nil {
 		return nil, err
 	}
-	return bf.Bytes(), nil
+	return bf.Bytes(ctx context.Context,), nil
 }
 
-func (j jsonEncoder) Decode(d []byte, v interface{}) error {
-	return json.Unmarshal(d, v)
+func (ctx context.Context,j jsonEncoder) Decode(ctx context.Context,d []byte, v interface{}) error {
+	return json.Unmarshal(ctx context.Context,d, v)
 }
 
-func (j jsonEncoder) String() string {
+func (ctx context.Context,j jsonEncoder) String(ctx context.Context,) string {
 	return "json"
 }
 
-func NewEncoder() encode.Encoder {
+func NewEncoder(ctx context.Context,) encode.Encoder {
 	return jsonEncoder{}
 }
