@@ -30,6 +30,9 @@ func (c *RedisDistributedLockClient) GetLock() (*RedisDistributedLock, error) {
 	if err != nil {
 		return nil, err
 	}
-	//redisConn := redis.NewClient(c.redisOptions).SetNX()
-	return getRedisDistributedLock(redisClient, c.option)
+	redisConn, err := c.redisPool.GetConn()
+	if err != nil {
+		return nil, err
+	}
+	return getRedisDistributedLock(redisConn, c.option)
 }
