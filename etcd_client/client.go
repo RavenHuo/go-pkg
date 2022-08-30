@@ -24,22 +24,22 @@ type Client struct {
 	logger log.ILogger
 }
 
-func Init(config *EtcdConfig, logger log.ILogger) (*Client, error) {
+func Init(config *EtcdConfig, logger log.ILogger) *Client {
 	if config == nil || len(config.Endpoints) == 0 {
-		return nil, ConfigErr
+		panic(ConfigErr)
 	}
 	if config.ConnectTimeout == 0 {
 		config.ConnectTimeout = DefaultDialTimeoutSecond * time.Second
 	}
 	etcdClient, err := genClient(config)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	return &Client{
 		c:      etcdClient,
 		config: config,
 		logger: logger,
-	}, nil
+	}
 }
 
 func genClient(config *EtcdConfig) (*clientv3.Client, error) {
