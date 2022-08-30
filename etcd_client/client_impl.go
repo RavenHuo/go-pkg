@@ -16,7 +16,7 @@ import (
 )
 
 // 获取目录里面所有信息
-func (client *Client) GetDirectory(ctx context.Context, directory string) (res map[string]string, err error) {
+func (client *client) GetDirectory(ctx context.Context, directory string) (res map[string]string, err error) {
 	kvMap := make(map[string]string)
 	kv := clientv3.NewKV(client.c)
 	rsp, getErr := kv.Get(ctx, directory, clientv3.WithPrefix())
@@ -30,7 +30,7 @@ func (client *Client) GetDirectory(ctx context.Context, directory string) (res m
 }
 
 // 给key设置value
-func (client *Client) PutKey(key string, value string, expireTTL int) (leaseId int64, err error) {
+func (client *client) PutKey(key string, value string, expireTTL int) (leaseId int64, err error) {
 	ctx := context.Background()
 	kv := clientv3.NewKV(client.c)
 
@@ -56,7 +56,7 @@ func (client *Client) PutKey(key string, value string, expireTTL int) (leaseId i
 }
 
 // 删除一个key
-func (client *Client) DeleteKey(key string) (err error) {
+func (client *client) DeleteKey(key string) (err error) {
 	ctx := context.Background()
 	kv := clientv3.NewKV(client.c)
 	_, deleteErr := kv.Delete(ctx, key)
@@ -66,7 +66,7 @@ func (client *Client) DeleteKey(key string) (err error) {
 	return nil
 }
 
-func (client *Client) genClient() (err error) {
+func (client *client) genClient() (err error) {
 	config := client.config
 	conf := clientv3.Config{
 		Endpoints:            config.Endpoints,
@@ -131,11 +131,11 @@ func (client *Client) genClient() (err error) {
 	return nil
 }
 
-func (client *Client) Close() (err error) {
+func (client *client) Close() (err error) {
 	return client.c.Close()
 }
 
 // 获取原始client ptr
-func (client *Client) GetClient() *clientv3.Client {
+func (client *client) GetClient() *clientv3.Client {
 	return client.c
 }

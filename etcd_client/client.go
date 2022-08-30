@@ -18,28 +18,28 @@ import (
 
 var ConfigErr = errors.New("init etcd config error")
 
-type Client struct {
+type client struct {
 	c      *clientv3.Client
 	config *EtcdConfig
 	logger log.ILogger
 }
 
-func Init(config *EtcdConfig, logger log.ILogger) *Client {
+func Init(config *EtcdConfig, logger log.ILogger) (*client, error) {
 	if config == nil || len(config.Endpoints) == 0 {
-		panic(ConfigErr)
+		return nil, ConfigErr
 	}
 	if config.ConnectTimeout == 0 {
 		config.ConnectTimeout = DefaultDialTimeoutSecond * time.Second
 	}
 	etcdClient, err := genClient(config)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &Client{
+	return &client{
 		c:      etcdClient,
 		config: config,
 		logger: logger,
-	}
+	}, nil
 }
 
 func genClient(config *EtcdConfig) (*clientv3.Client, error) {
