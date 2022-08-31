@@ -18,13 +18,13 @@ import (
 
 var ConfigErr = errors.New("init etcd config error")
 
-type client struct {
+type Client struct {
 	c      *clientv3.Client
 	config *EtcdConfig
 	logger log.ILogger
 }
 
-func Init(config *EtcdConfig, logger log.ILogger) (*client, error) {
+func New(config *EtcdConfig, logger log.ILogger) (*Client, error) {
 	if config == nil || len(config.Endpoints) == 0 {
 		return nil, ConfigErr
 	}
@@ -35,7 +35,7 @@ func Init(config *EtcdConfig, logger log.ILogger) (*client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &client{
+	return &Client{
 		c:      etcdClient,
 		config: config,
 		logger: logger,

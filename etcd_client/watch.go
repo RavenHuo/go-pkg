@@ -35,7 +35,7 @@ func (w *Watch) C() chan *Event {
 }
 
 // 监听前缀key，并返回chan （非阻塞执行）
-func (client *client) WatchPrefix(prefixContext context.Context, prefix string) (chan *Event, error) {
+func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) (chan *Event, error) {
 	resp, err := client.c.Get(prefixContext, prefix, clientv3.WithPrefix(), clientv3.WithKeysOnly())
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (client *client) WatchPrefix(prefixContext context.Context, prefix string) 
 }
 
 // 监听目录 阻塞执行
-func (client *client) WatchDirectory(ctx context.Context, directory string, handler WatchHandler) error {
+func (client *Client) WatchDirectory(ctx context.Context, directory string, handler WatchHandler) error {
 	watchCh := client.c.Watch(ctx, directory, clientv3.WithPrefix())
 	for resp := range watchCh {
 		for _, ev := range resp.Events {
