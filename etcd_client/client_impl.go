@@ -16,15 +16,15 @@ import (
 )
 
 // 获取目录里面所有信息
-func (client *Client) GetDirectory(ctx context.Context, directory string) (res map[string]string, err error) {
-	kvMap := make(map[string]string)
+func (client *Client) GetDirectory(ctx context.Context, directory string) (res map[string][]byte, err error) {
+	kvMap := make(map[string][]byte)
 	kv := clientv3.NewKV(client.c)
 	rsp, getErr := kv.Get(ctx, directory, clientv3.WithPrefix())
 	if getErr != nil {
 		return nil, getErr
 	}
 	for _, item := range rsp.Kvs {
-		kvMap[string(item.Key)] = string(item.Value)
+		kvMap[string(item.Key)] = item.Value
 	}
 	return kvMap, err
 }
