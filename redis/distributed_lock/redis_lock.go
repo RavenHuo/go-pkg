@@ -50,7 +50,7 @@ func (r RedisDistributedLock) Lock(ctx context.Context, key string, expiredDurat
 		return false, errors.New("[RedisDistributedLock]expiredDuration can not less than 0")
 	}
 	if r.redisConn == nil {
-		return false, errors.New("[RedisDistributedLock.Lock]cannot get client")
+		return false, errors.New("[RedisDistributedLock.Lock]cannot get pb")
 	}
 
 	r.expiredDuration = expiredDuration
