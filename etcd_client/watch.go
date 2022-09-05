@@ -60,7 +60,7 @@ func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) 
 		revision:  reversion,
 		eventChan: make(chan *Event, 100),
 	}
-	client.logger.Infof(prefixContext, "init get prefix:%s cost:%dms", prefix, time.Now().Sub(start).Milliseconds())
+	client.logger.Infof(prefixContext, "init get prefix:%s cost:%d ms", prefix, time.Now().Sub(start).Milliseconds())
 
 	w.incipientKVs = incipientKVs
 
@@ -90,8 +90,8 @@ func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) 
 					if ev.Type == clientv3.EventTypeDelete {
 						event.Type = clientv3.EventTypeDelete
 					}
-
-					client.logger.Infof(ctx, "watch type:%d key:%s", event.Type, string(event.Kv.Key))
+					key := string(event.Kv.Key)
+					client.logger.Infof(ctx, "watch type:%d key:%s", event.Type, key)
 					begin := time.Now().UnixNano() / 1e9
 					w.eventChan <- event
 					end := time.Now().UnixNano() / 1e9

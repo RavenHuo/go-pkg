@@ -29,8 +29,8 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
-
 replace github.com/coreos/bbolt v1.3.4 => go.etcd.io/bbolt v1.3.4
 
 replace github.com/coreos/go-systemd => github.com/coreos/go-systemd/v22 v22.1.0
+
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
