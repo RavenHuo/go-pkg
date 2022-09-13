@@ -2,7 +2,7 @@ package etcd_client
 
 import (
 	"context"
-	"github.com/coreos/etcd/clientv3"
+	"go.etcd.io/etcd/client/v3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	"time"
 )
