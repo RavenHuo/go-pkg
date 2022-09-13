@@ -8,6 +8,7 @@ package nets
 import (
 	"errors"
 	"net"
+	"strconv"
 )
 
 // GetLocalIP ...
@@ -38,4 +39,10 @@ func GetLocalMainIP() (string, int, error) {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return localAddr.IP.String(), localAddr.Port, nil
+}
+
+func GetAddrAndPort(addr string) (string, int) {
+	ip, portStr, _ := net.SplitHostPort(addr)
+	port, _ := strconv.Atoi(portStr)
+	return ip, port
 }
