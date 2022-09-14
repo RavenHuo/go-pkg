@@ -264,7 +264,10 @@ func rotateRight(x *node) {
 }
 
 func (t *TreeMap)LastKey() Key {
-	return t.endNode.key
+	if t.endNode.left != nil {
+		return t.endNode.left.key
+	}
+	return nil
 }
 
 func (t *TreeMap) insertFixup(x *node) {
