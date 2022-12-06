@@ -9,7 +9,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
-	"github.com/RavenHuo/go-kit/log"
 	"go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"io/ioutil"
@@ -21,10 +20,9 @@ var ConfigErr = errors.New("init etcd config error")
 type Client struct {
 	c      *clientv3.Client
 	config *EtcdConfig
-	logger log.ILogger
 }
 
-func New(config *EtcdConfig, logger log.ILogger) (*Client, error) {
+func New(config *EtcdConfig) (*Client, error) {
 	if config == nil || len(config.Endpoints) == 0 {
 		return nil, ConfigErr
 	}
@@ -38,7 +36,6 @@ func New(config *EtcdConfig, logger log.ILogger) (*Client, error) {
 	return &Client{
 		c:      etcdClient,
 		config: config,
-		logger: logger,
 	}, nil
 }
 

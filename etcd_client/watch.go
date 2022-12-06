@@ -2,6 +2,7 @@ package etcd_client
 
 import (
 	"context"
+	"github.com/RavenHuo/go-kit/log"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	"go.etcd.io/etcd/client/v3"
 	"time"
@@ -60,7 +61,7 @@ func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) 
 		revision:  reversion,
 		eventChan: make(chan *Event, 100),
 	}
-	client.logger.Infof(prefixContext, "init get prefix:%s cost:%d ms", prefix, time.Now().Sub(start).Milliseconds())
+	log.Infof(prefixContext, "init get prefix:%s cost:%d ms", prefix, time.Now().Sub(start).Milliseconds())
 
 	w.incipientKVs = incipientKVs
 
@@ -79,7 +80,7 @@ func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) 
 					w.revision = n.Header.GetRevision()
 				}
 				if err := n.Err(); err != nil {
-					client.logger.Errorf(ctx, "etcd watch prefix found error:%v, prefix:%v", n.Err(), prefix)
+					log.Errorf(ctx, "etcd watch prefix found error:%v, prefix:%v", n.Err(), prefix)
 					continue
 				}
 				for _, ev := range n.Events {
@@ -91,11 +92,11 @@ func (client *Client) WatchPrefix(prefixContext context.Context, prefix string) 
 						event.Type = clientv3.EventTypeDelete
 					}
 					key := string(event.Kv.Key)
-					client.logger.Infof(ctx, "watch type:%d key:%s", event.Type, key)
+					log.Infof(ctx, "watch type:%d key:%s", event.Type, key)
 					begin := time.Now().UnixNano() / 1e9
 					w.eventChan <- event
 					end := time.Now().UnixNano() / 1e9
-					client.logger.Infof(ctx, "etcd watch directory take times: %dms, mod: WatchPrefix", end-begin)
+					log.Infof(ctx, "etcd watch directory take times: %dms, mod: WatchPrefix", end-begin)
 				}
 			}
 			ctx, cancel := context.WithCancel(context.Background())
@@ -116,7 +117,7 @@ func (client *Client) WatchDirectory(ctx context.Context, directory string, hand
 	watchCh := client.c.Watch(ctx, directory, clientv3.WithPrefix())
 	for resp := range watchCh {
 		for _, ev := range resp.Events {
-			client.logger.Infof(ctx, "watch data:%d %s", ev.Type, string(ev.Kv.Key))
+			log.Infof(ctx, "watch data:%d %s", ev.Type, string(ev.Kv.Key))
 			begin := time.Now().UnixNano() / 1e9
 			event := &Event{
 				Type: clientv3.EventTypePut,
@@ -127,7 +128,7 @@ func (client *Client) WatchDirectory(ctx context.Context, directory string, hand
 			}
 			handler(ctx, event)
 			end := time.Now().UnixNano() / 1e9
-			client.logger.Infof(ctx, "etcd watch directory take times: %dms, mod: client_impl", end-begin)
+			log.Infof(ctx, "etcd watch directory take times: %dms, mod: client_impl", end-begin)
 		}
 	}
 	return nil
