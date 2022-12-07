@@ -53,7 +53,7 @@ func getTraceId(ctx context.Context) string {
 	}
 	traceId := ctx.Value(TraceIdField)
 	if traceId == nil {
-		traceId = ""
+		traceId = "main"
 	}
 	return traceId.(string)
 }
