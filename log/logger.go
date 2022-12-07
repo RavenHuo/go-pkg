@@ -29,8 +29,10 @@ func getLogger() ILogger {
 	return logger
 }
 
+func UseLogger(log ILogger) {
+	logger = log
+}
+
 func init() {
-	logger = &contextLogger{
-		log: getLogrus(),
-	}
+	logger = BuildContextLogger()
 }

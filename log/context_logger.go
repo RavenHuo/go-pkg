@@ -39,3 +39,9 @@ func (d *contextLogger) Debug(ctx context.Context, msg string) {
 func (d *contextLogger) Debugf(ctx context.Context, format string, arg ...interface{}) {
 	d.log.WithContext(ctx).Debugf(format, arg...)
 }
+
+func BuildContextLogger() ILogger {
+	return &contextLogger{
+		log: getLogrus(),
+	}
+}
