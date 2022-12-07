@@ -1,6 +1,6 @@
 package toml
 
-import (ctx context.Context,
+import (
 	"bytes"
 
 	"github.com/RavenHuo/go-kit/encode"
@@ -10,24 +10,24 @@ import (ctx context.Context,
 
 type tomlEncoder struct{}
 
-func (ctx context.Context,t tomlEncoder) Encode(ctx context.Context,v interface{}) (ctx context.Context,[]byte, error) {
-	b := bytes.NewBuffer(ctx context.Context,[]byte{})
-	err := toml.NewEncoder(ctx context.Context,b).Encode(ctx context.Context,v)
+func (t tomlEncoder) Encode(v interface{}) ([]byte, error) {
+	b := bytes.NewBuffer([]byte{})
+	err := toml.NewEncoder(b).Encode(v)
 	if err != nil {
 		return nil, err
 	}
-	return b.Bytes(ctx context.Context,), nil
+	return b.Bytes(), nil
 }
 
-func (ctx context.Context,t tomlEncoder) Decode(ctx context.Context,d []byte, v interface{}) error {
-	return toml.Unmarshal(ctx context.Context,d, v)
+func (t tomlEncoder) Decode(d []byte, v interface{}) error {
+	return toml.Unmarshal(d, v)
 }
 
-func (ctx context.Context,t tomlEncoder) String(ctx context.Context,) string {
+func (t tomlEncoder) String() string {
 	return "toml"
 }
 
 // NewEncoder is a toml encoder
-func NewEncoder(ctx context.Context,) encode.Encoder {
+func NewEncoder() encode.Encoder {
 	return tomlEncoder{}
 }
