@@ -5,7 +5,11 @@
  **/
 package log
 
-import "context"
+import (
+	"context"
+)
+
+var logger ILogger
 
 type ILogger interface {
 	Debug(ctx context.Context, msg string)
@@ -19,4 +23,14 @@ type ILogger interface {
 
 	Error(ctx context.Context, msg string)
 	Errorf(ctx context.Context, format string, v ...interface{})
+}
+
+func getLogger() ILogger {
+	return logger
+}
+
+func init() {
+	logger = &contextLogger{
+		log: getLogrus(),
+	}
 }

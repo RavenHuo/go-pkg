@@ -8,11 +8,7 @@ package log
 import (
 	"context"
 	"github.com/sirupsen/logrus"
-	"sync"
 )
-
-var contextLoggerOnce sync.Once
-var localContextLogger *contextLogger
 
 type contextLogger struct {
 	log *logrus.Logger
@@ -42,14 +38,4 @@ func (d *contextLogger) Debug(ctx context.Context, msg string) {
 }
 func (d *contextLogger) Debugf(ctx context.Context, format string, arg ...interface{}) {
 	d.log.WithContext(ctx).Debugf(format, arg...)
-}
-
-func getContextLogger() *contextLogger {
-	contextLoggerOnce.Do(
-		func() {
-			localContextLogger = &contextLogger{
-				log: getLogrus(),
-			}
-		})
-	return localContextLogger
 }
