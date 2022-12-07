@@ -8,15 +8,32 @@ package distributed_lock
 import (
 	"context"
 	"errors"
+	"github.com/RavenHuo/go-kit/redis/redigo"
 	"time"
 
-	"github.com/RavenHuo/go-kit/redis/redigo/conn"
 	"github.com/RavenHuo/go-kit/utils"
 	"github.com/sirupsen/logrus"
 )
 
+//lua 脚本
+const unlockScript = `
+		if redis.call("GET", KEYS[1]) == ARGV[1] then
+			return redis.call("DEL", KEYS[1])
+		else
+			return 0
+		end
+	`
+const checkAndRenewScript = `
+        if (redis.call('exists', KEYS[1]) == 1) then
+            redis.call('expire', KEYS[1], ARGV[1]); 
+            return 1; 
+        end;
+        return 0;
+    `
+const RELEASE_SUCCESS = 1
+
 type RedisDistributedLock struct {
-	redisConn *conn.RedisConn
+	redisPool *redigo.Pool
 
 	// 配置
 	option *DistributedLockOption
@@ -36,22 +53,24 @@ type RedisDistributedLock struct {
 	waitDuration time.Duration
 }
 
-func getRedisDistributedLock(redisConn *conn.RedisConn, option *DistributedLockOption) (*RedisDistributedLock, error) {
+func getRedisDistributedLock(redisPool *redigo.Pool, option *DistributedLockOption) (*RedisDistributedLock, error) {
 	lock := &RedisDistributedLock{
-		redisConn: redisConn,
+		redisPool: redisPool,
 		option:    option,
 	}
 	lock.uuId = utils.GetUuid()
 	return lock, nil
 }
 
-func (r RedisDistributedLock) Lock(ctx context.Context, key string, expiredDuration time.Duration, waitDuration time.Duration) (bool, error) {
-	if expiredDuration <= 0 || expiredDuration.Seconds() <= 0{
+func (r *RedisDistributedLock) Lock(ctx context.Context, key string, expiredDuration time.Duration, waitDuration time.Duration) (bool, error) {
+	if expiredDuration <= 0 || expiredDuration.Seconds() <= 0 {
 		return false, errors.New("[RedisDistributedLock]expiredDuration can not less than 0")
 	}
-	if r.redisConn == nil {
-		return false, errors.New("[RedisDistributedLock.Lock]cannot get pb")
+	conn, connErr := r.redisPool.GetConn()
+	if connErr != nil {
+		return false, errors.New("[RedisDistributedLock.Lock]getConn failed")
 	}
+	defer conn.Close()
 
 	r.expiredDuration = expiredDuration
 	r.waitDuration = waitDuration
@@ -63,7 +82,7 @@ func (r RedisDistributedLock) Lock(ctx context.Context, key string, expiredDurat
 	var err error
 	expiredTime := int64(r.expiredDuration.Seconds())
 	for {
-		success, err = r.redisConn.SetNX(ctx, key, r.uuId, expiredTime).Result()
+		success, err = conn.SetNX(ctx, key, r.uuId, expiredTime).Result()
 		// 结束等待
 		if (err == nil && success == true) || waitTime == 0 || time.Since(startTime) > waitTime {
 			break
@@ -83,13 +102,72 @@ func (r RedisDistributedLock) Lock(ctx context.Context, key string, expiredDurat
 	return success, err
 }
 
-func (r RedisDistributedLock) Unlock(ctx context.Context, key string) (bool, error) {
-	panic("implement me")
+func (r *RedisDistributedLock) Unlock(ctx context.Context, key string) (bool, error) {
+	pass, isValidErr := r.option.IsValid()
+	if isValidErr != nil || !pass {
+		return false, isValidErr
+	}
+	conn, connErr := r.redisPool.GetConn()
+	if connErr != nil {
+		return false, errors.New("[RedisDistributedLock.Lock]getConn failed")
+	}
+	result, err := conn.Eval(ctx, unlockScript, []string{key}, r.uuId).Result()
+	if err != nil {
+		return false, err
+	}
+	intResult := result.(int32)
+	if intResult == RELEASE_SUCCESS {
+		return true, nil
+	}
+	return false, nil
 }
 
-func (r RedisDistributedLock) renew(ctx context.Context) {
-	panic("implement me")
+func (r *RedisDistributedLock) renew(ctx context.Context) {
+	conn, connErr := r.redisPool.GetConn()
+	if connErr != nil {
+		return
+	}
+
+	result, err := conn.Eval(ctx, checkAndRenewScript, []string{r.key}, r.option.RenewSeconds).Result()
+	if err != nil {
+		return
+	}
+	intResult := result.(int32)
+	if intResult != RELEASE_SUCCESS {
+		r.cancelRenew(ctx)
+	}
 }
-func (r RedisDistributedLock) Close(ctx context.Context) error {
-	return r.redisConn.Close()
+
+func (r *RedisDistributedLock) startWatchDogRoutine(ctx context.Context) {
+	r.watchDogLiveSecs = 0
+	ticker := time.NewTicker(time.Duration(r.option.CheckIntervalSeconds) * time.Second)
+	for {
+		select {
+		case <-r.notify:
+			return
+		case <-ticker.C:
+			r.checkAndRenewLock(ctx)
+		}
+	}
+}
+
+func (r *RedisDistributedLock) checkAndRenewLock(ctx context.Context) {
+	option := r.option
+	r.watchDogLiveSecs += option.CheckIntervalSeconds
+	if option == nil {
+		return
+	}
+	if option.MaxLiveSeconds > 0 &&
+		r.watchDogLiveSecs >= option.MaxLiveSeconds {
+		option.MaxLiveCb()
+		r.cancelRenew(ctx)
+		return
+	}
+	r.renew(ctx)
+}
+
+func (r *RedisDistributedLock) cancelRenew(ctx context.Context) {
+	if r.option.CheckIntervalSeconds > 0 && r.option.RenewSeconds > 0 && r.notify != nil {
+		r.notify <- struct{}{}
+	}
 }

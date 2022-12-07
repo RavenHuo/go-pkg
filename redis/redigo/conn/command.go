@@ -40,9 +40,10 @@ const (
 	TouchCommand RedisCommand = "touch"
 	TtlCommand   RedisCommand = "ttl"
 	TypeCommand  RedisCommand = "type"
+	EvalCommand  RedisCommand = "eval"
 )
 
-type wrapperCmderFunc func(cmd *baseCmder) ICmder
+type wrapperCmderFunc func(cmd *BaseCmder) ICmder
 
 var redisCommandWrapperMap = map[RedisCommand]wrapperCmderFunc{
 	SetCommand:       wrapperStringCmder,
@@ -64,7 +65,6 @@ var redisCommandWrapperMap = map[RedisCommand]wrapperCmderFunc{
 	SetNxCommand:     wrapperBoolCmder,
 	SetExCommand:     wrapperBoolCmder,
 
-
 	// common
 	PingCommand:  wrapperStringCmder,
 	TouchCommand: wrapperIntCmder,
@@ -72,7 +72,7 @@ var redisCommandWrapperMap = map[RedisCommand]wrapperCmderFunc{
 	TypeCommand:  wrapperStringCmder,
 }
 
-func wrapperCmder(command RedisCommand, cmder *baseCmder) ICmder {
+func wrapperCmder(command RedisCommand, cmder *BaseCmder) ICmder {
 	wrapperFunc := redisCommandWrapperMap[command]
 	if wrapperFunc == nil {
 		return nil

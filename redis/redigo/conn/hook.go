@@ -10,15 +10,15 @@ import (
 )
 
 type Hook interface {
-	BeforeProcess(ctx context.Context, cmd *baseCmder) (context.Context, error)
-	AfterProcess(ctx context.Context, cmd *baseCmder) error
+	BeforeProcess(ctx context.Context, cmd *BaseCmder) (context.Context, error)
+	AfterProcess(ctx context.Context, cmd *BaseCmder) error
 
-	BeforeProcessPipeline(ctx context.Context, cmds []*baseCmder) (context.Context, error)
-	AfterProcessPipeline(ctx context.Context, cmds []*baseCmder) error
+	BeforeProcessPipeline(ctx context.Context, cmds []*BaseCmder) (context.Context, error)
+	AfterProcessPipeline(ctx context.Context, cmds []*BaseCmder) error
 }
 
-type DoCommand func(context.Context, *baseCmder) (interface{}, error)
-type DoPipeLineCommand func(context.Context, []*baseCmder) ([]interface{}, error)
+type DoCommand func(context.Context, *BaseCmder) (interface{}, error)
+type DoPipeLineCommand func(context.Context, []*BaseCmder) ([]interface{}, error)
 
 type hooks struct {
 	hooks []Hook
@@ -28,7 +28,7 @@ func (hs hooks) AddHook(hook Hook) {
 	hs.hooks = append(hs.hooks, hook)
 }
 
-func (hs hooks) process(ctx context.Context, cmd *baseCmder, do DoCommand) (interface{}, error) {
+func (hs hooks) process(ctx context.Context, cmd *BaseCmder, do DoCommand) (interface{}, error) {
 	if len(hs.hooks) == 0 {
 		return do(ctx, cmd)
 	}
@@ -58,7 +58,7 @@ func (hs hooks) process(ctx context.Context, cmd *baseCmder, do DoCommand) (inte
 	return result, retErr
 }
 
-func (hs hooks) processPipeline(ctx context.Context, cmds []*baseCmder, do DoPipeLineCommand) ([]interface{}, error) {
+func (hs hooks) processPipeline(ctx context.Context, cmds []*BaseCmder, do DoPipeLineCommand) ([]interface{}, error) {
 	if len(hs.hooks) == 0 {
 		return do(ctx, cmds)
 	}
@@ -88,7 +88,7 @@ func (hs hooks) processPipeline(ctx context.Context, cmds []*baseCmder, do DoPip
 	return result, retErr
 }
 
-func setCmdsErr(cmds []*baseCmder, e error) {
+func setCmdsErr(cmds []*BaseCmder, e error) {
 	for _, cmd := range cmds {
 		if cmd.Err() == nil {
 			cmd.SetErr(e)

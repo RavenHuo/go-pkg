@@ -19,42 +19,42 @@ type ICmder interface {
 	SetErr(err error)
 	ToString() string
 }
-type baseCmder struct {
+type BaseCmder struct {
 	cmd  string
 	args []interface{}
 	err  error
 	val  interface{}
 }
 
-func (c *baseCmder) Val() interface{} {
+func (c *BaseCmder) Val() interface{} {
 	return c.val
 }
 
-func (c *baseCmder) setVal(v interface{}) {
+func (c *BaseCmder) setVal(v interface{}) {
 	c.val = v
 }
 
-func (c *baseCmder) Result() (interface{}, error) {
+func (c *BaseCmder) Result() (interface{}, error) {
 	return c.val, c.err
 }
 
-func (c *baseCmder) Err() error {
+func (c *BaseCmder) Err() error {
 	return c.err
 }
-func (c *baseCmder) Args() []interface{} {
+func (c *BaseCmder) Args() []interface{} {
 	return c.args
 }
-func (c *baseCmder) ToString() string {
+func (c *BaseCmder) ToString() string {
 	return cmdString(c, nil)
 }
-func (c *baseCmder) Cmd() string {
+func (c *BaseCmder) Cmd() string {
 	return c.cmd
 }
-func (c *baseCmder) SetErr(err error) {
+func (c *BaseCmder) SetErr(err error) {
 	c.err = err
 }
-func newBaseCmder(cmd string, arg ...interface{}) *baseCmder {
-	return &baseCmder{
+func newBaseCmder(cmd string, arg ...interface{}) *BaseCmder {
+	return &BaseCmder{
 		cmd:  cmd,
 		args: arg,
 	}
@@ -98,7 +98,7 @@ type ZMemberRangeBy struct {
 
 ///////////////////////////////// IntCmder ////////////////////////
 type IntCmder struct {
-	*baseCmder
+	*BaseCmder
 	val int64
 }
 
@@ -119,11 +119,11 @@ func (c *IntCmder) Uint64() (uint64, error) {
 }
 
 func (c *IntCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperIntCmder(cmd *baseCmder) ICmder {
+func wrapperIntCmder(cmd *BaseCmder) ICmder {
 	intCmder := &IntCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().(int64)
 	intCmder.setVal(v)
@@ -134,7 +134,7 @@ func wrapperIntCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// StringCmder //////////////////////
 type StringCmder struct {
-	*baseCmder
+	*BaseCmder
 	val string
 }
 
@@ -151,12 +151,12 @@ func (c *StringCmder) Result() (string, error) {
 }
 
 func (c *StringCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
 
-func wrapperStringCmder(cmd *baseCmder) ICmder {
+func wrapperStringCmder(cmd *BaseCmder) ICmder {
 	s := &StringCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().([]byte)
 	stringBuilder := strings.Builder{}
@@ -169,8 +169,8 @@ func wrapperStringCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// BoolCmder /////////////////////////
 type BoolCmder struct {
-	*baseCmder
-	val bool
+	*BaseCmder
+	val      bool
 	response string
 }
 
@@ -187,14 +187,14 @@ func (c *BoolCmder) Result() (bool, error) {
 }
 
 func (c *BoolCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
 func (c *BoolCmder) Response() string {
 	return c.response
 }
-func wrapperBoolCmder(cmd *baseCmder) ICmder {
+func wrapperBoolCmder(cmd *BaseCmder) ICmder {
 	boolCmd := &BoolCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().(string)
 	if v == oKResponse {
@@ -208,7 +208,7 @@ func wrapperBoolCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// DurationCmder /////////////////////
 type DurationCmder struct {
-	*baseCmder
+	*BaseCmder
 	val time.Duration
 }
 
@@ -225,12 +225,12 @@ func (c *DurationCmder) Result() (time.Duration, error) {
 }
 
 func (c *DurationCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
 
-func wrapperDurationCmder(cmd *baseCmder) ICmder {
+func wrapperDurationCmder(cmd *BaseCmder) ICmder {
 	durationCmder := &DurationCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	seconds, _ := cmd.Val().(int64)
 	v := time.Second * time.Duration(seconds)
@@ -242,7 +242,7 @@ func wrapperDurationCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// FloatCmder    /////////////////////
 type FloatCmder struct {
-	*baseCmder
+	*BaseCmder
 	val float64
 }
 
@@ -259,11 +259,11 @@ func (c *FloatCmder) Result() (float64, error) {
 }
 
 func (c *FloatCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperFloatCmder(cmd *baseCmder) ICmder {
+func wrapperFloatCmder(cmd *BaseCmder) ICmder {
 	floatCmd := &FloatCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().(float64)
 	floatCmd.setVal(v)
@@ -274,7 +274,7 @@ func wrapperFloatCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// IntSliceCmder /////////////////////
 type IntSliceCmder struct {
-	*baseCmder
+	*BaseCmder
 	val []int64
 }
 
@@ -291,11 +291,11 @@ func (c *IntSliceCmder) Result() ([]int64, error) {
 }
 
 func (c *IntSliceCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperIntSliceCmder(cmd *baseCmder) ICmder {
+func wrapperIntSliceCmder(cmd *BaseCmder) ICmder {
 	floatCmd := &IntSliceCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().([]int64)
 	floatCmd.setVal(v)
@@ -306,7 +306,7 @@ func wrapperIntSliceCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// StringSliceCmder //////////////////
 type StringSliceCmder struct {
-	*baseCmder
+	*BaseCmder
 	val []string
 }
 
@@ -323,11 +323,11 @@ func (c *StringSliceCmder) Result() ([]string, error) {
 }
 
 func (c *StringSliceCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperStringSliceCmder(cmd *baseCmder) ICmder {
+func wrapperStringSliceCmder(cmd *BaseCmder) ICmder {
 	stringSliceCmd := &StringSliceCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().([]string)
 	stringSliceCmd.setVal(v)
@@ -338,7 +338,7 @@ func wrapperStringSliceCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// InterfaceSliceCmder ///////////////
 type InterfaceSliceCmder struct {
-	*baseCmder
+	*BaseCmder
 	val []interface{}
 }
 
@@ -355,11 +355,11 @@ func (c *InterfaceSliceCmder) Result() ([]interface{}, error) {
 }
 
 func (c *InterfaceSliceCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperInterfaceSliceCmder(cmd *baseCmder) ICmder {
+func wrapperInterfaceSliceCmder(cmd *BaseCmder) ICmder {
 	interfaceSliceCmd := &InterfaceSliceCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().([]interface{})
 	interfaceSliceCmd.setVal(v)
@@ -370,7 +370,7 @@ func wrapperInterfaceSliceCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// ZMemberSliceCmder /////////////////
 type ZMemberSliceCmder struct {
-	*baseCmder
+	*BaseCmder
 	val []ZMember
 }
 
@@ -387,11 +387,11 @@ func (c *ZMemberSliceCmder) Result() ([]ZMember, error) {
 }
 
 func (c *ZMemberSliceCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperZMemberSliceCmder(cmd *baseCmder) ICmder {
+func wrapperZMemberSliceCmder(cmd *BaseCmder) ICmder {
 	zMemberSliceCmd := &ZMemberSliceCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().([]ZMember)
 	zMemberSliceCmd.setVal(v)
@@ -402,7 +402,7 @@ func wrapperZMemberSliceCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// StringStructMapCmder //////////////
 type StringStructMapCmder struct {
-	*baseCmder
+	*BaseCmder
 	val map[string]struct{}
 }
 
@@ -419,11 +419,11 @@ func (c *StringStructMapCmder) Result() (map[string]struct{}, error) {
 }
 
 func (c *StringStructMapCmder) ToString() string {
-	return cmdString(c.baseCmder, c.val)
+	return cmdString(c.BaseCmder, c.val)
 }
-func wrapperStringStructMapCmder(cmd *baseCmder) ICmder {
+func wrapperStringStructMapCmder(cmd *BaseCmder) ICmder {
 	stringStructMapCmder := &StringStructMapCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	v, _ := cmd.Val().(map[string]struct{})
 	stringStructMapCmder.setVal(v)
@@ -434,7 +434,7 @@ func wrapperStringStructMapCmder(cmd *baseCmder) ICmder {
 
 ///////////////////////////////// ScanCmder /////////////////////////
 type ScanCmder struct {
-	*baseCmder
+	*BaseCmder
 	page   []string
 	cursor uint64
 }
@@ -453,13 +453,13 @@ func (c *ScanCmder) Result() ([]string, uint64, error) {
 }
 
 func (c *ScanCmder) ToString() string {
-	return cmdString(c.baseCmder, c.page)
+	return cmdString(c.BaseCmder, c.page)
 }
 
 // TODO result
-func wrapperScanCmder(cmd *baseCmder) ICmder {
+func wrapperScanCmder(cmd *BaseCmder) ICmder {
 	scanCmder := &ScanCmder{
-		baseCmder: cmd,
+		BaseCmder: cmd,
 	}
 	return scanCmder
 }

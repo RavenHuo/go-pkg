@@ -462,3 +462,7 @@ func (c *RedisConn) ZRevRank(ctx context.Context, key, member string) *IntCmder 
 func (c *RedisConn) ZScore(ctx context.Context, key, member string) *FloatCmder {
 	panic("implement me")
 }
+
+func (c *RedisConn) Eval(ctx context.Context, script string, keys []string, args ...interface{}) *BaseCmder {
+	return c.Do(ctx, EvalCommand, script, keys, args)
+}

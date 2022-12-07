@@ -25,7 +25,7 @@ func (c *RedisConn) AddHook(hook Hook) {
 	c.hooks.AddHook(hook)
 }
 
-func (c *RedisConn) Do(ctx context.Context, redisCommand RedisCommand, args ...interface{}) *baseCmder {
+func (c *RedisConn) Do(ctx context.Context, redisCommand RedisCommand, args ...interface{}) *BaseCmder {
 	cmder := newBaseCmder(string(redisCommand), args...)
 	reply, err := c.process(ctx, cmder)
 	cmder.setVal(reply)
@@ -33,13 +33,13 @@ func (c *RedisConn) Do(ctx context.Context, redisCommand RedisCommand, args ...i
 	return cmder
 }
 
-func (c *RedisConn) process(ctx context.Context, cmder *baseCmder) (interface{}, error) {
-	return c.hooks.process(ctx, cmder, func(ctx context.Context, cmder *baseCmder) (interface{}, error) {
+func (c *RedisConn) process(ctx context.Context, cmder *BaseCmder) (interface{}, error) {
+	return c.hooks.process(ctx, cmder, func(ctx context.Context, cmder *BaseCmder) (interface{}, error) {
 		return c.do(ctx, cmder)
 	})
 }
 
-func (c *RedisConn) do(ctx context.Context, cmder *baseCmder) (interface{}, error) {
+func (c *RedisConn) do(ctx context.Context, cmder *BaseCmder) (interface{}, error) {
 	return c.Conn.Do(cmder.Cmd(), cmder.Args()...)
 }
 

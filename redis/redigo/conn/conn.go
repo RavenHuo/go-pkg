@@ -146,4 +146,6 @@ type IConn interface {
 	ZRevRangeByScoreWithScores(ctx context.Context, key string, opt *ZMemberRangeBy) *ZMemberSliceCmder
 	ZRevRank(ctx context.Context, key, member string) *IntCmder
 	ZScore(ctx context.Context, key, member string) *FloatCmder
+
+	Eval(ctx context.Context, script string, keys []string, args ...interface{}) *BaseCmder
 }

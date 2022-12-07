@@ -10,29 +10,23 @@ import (
 )
 
 type RedisDistributedLockClient struct {
-	option    *DistributedLockOption
 	redisPool *redigo.Pool
 }
 
-func NewRedisDistributedLockClient(option *DistributedLockOption, redisOptions *redigo.Options) (*RedisDistributedLockClient, error) {
+func NewRedisDistributedLockClient(redisOptions *redigo.Options) (*RedisDistributedLockClient, error) {
 	redisPool, err := redigo.NewPool(redisOptions)
 	if err != nil {
 		return nil, err
 	}
 	return &RedisDistributedLockClient{
-		option:    option,
 		redisPool: redisPool,
 	}, nil
 }
 
-func (c *RedisDistributedLockClient) GetLock() (*RedisDistributedLock, error) {
-	_, err := c.option.IsValid()
+func (c *RedisDistributedLockClient) GetLock(option *DistributedLockOption) (*RedisDistributedLock, error) {
+	_, err := option.IsValid()
 	if err != nil {
 		return nil, err
 	}
-	redisConn, err := c.redisPool.GetConn()
-	if err != nil {
-		return nil, err
-	}
-	return getRedisDistributedLock(redisConn, c.option)
+	return getRedisDistributedLock(c.redisPool, option)
 }
