@@ -17,29 +17,29 @@ type TraceLogger struct {
 }
 
 func (d *TraceLogger) Error(ctx context.Context, msg string) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Error(msg)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Error(msg)
 }
 func (d *TraceLogger) Errorf(ctx context.Context, format string, args ...interface{}) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Errorf(format, args...)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Errorf(format, args...)
 }
 func (d *TraceLogger) Info(ctx context.Context, msg string) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Info(msg)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Info(msg)
 }
 func (d *TraceLogger) Infof(ctx context.Context, format string, arg ...interface{}) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Infof(format, arg...)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Infof(format, arg...)
 }
 func (d *TraceLogger) Warn(ctx context.Context, msg string) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Warn(msg)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Warn(msg)
 }
 func (d *TraceLogger) Warnf(ctx context.Context, format string, arg ...interface{}) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Warnf(format, arg...)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Warnf(format, arg...)
 }
 
 func (d *TraceLogger) Debug(ctx context.Context, msg string) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Debug(msg)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Debug(msg)
 }
 func (d *TraceLogger) Debugf(ctx context.Context, format string, arg ...interface{}) {
-	logrus.WithField(TraceIdField, getTraceId(ctx)).Debugf(format, arg...)
+	logrus.WithField(TraceIdField, getTraceId(ctx)).WithContext(ctx).Debugf(format, arg...)
 }
 
 func BuildTraceLogger() ILogger {
