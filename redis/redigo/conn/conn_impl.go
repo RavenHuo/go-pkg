@@ -48,35 +48,43 @@ func (c *RedisConn) DecrBy(ctx context.Context, key string, decrement int64) *In
 }
 
 func (c *RedisConn) GetRange(ctx context.Context, key string, start, end int64) *StringCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, GetRangeCommand, key, start, end)
+	return cmder.(*StringCmder)
 }
 
 func (c *RedisConn) GetSet(ctx context.Context, key string, value interface{}) *StringCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, GetSetCommand, key, value)
+	return cmder.(*StringCmder)
 }
 
 func (c *RedisConn) Incr(ctx context.Context, key string) *IntCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, IncrCommand, key)
+	return cmder.(*IntCmder)
 }
 
 func (c *RedisConn) IncrBy(ctx context.Context, key string, value int64) *IntCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, IncrByCommand, key, value)
+	return cmder.(*IntCmder)
 }
 
 func (c *RedisConn) IncrByFloat(ctx context.Context, key string, value float64) *FloatCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, IncrByFloatCommand, key, value)
+	return cmder.(*FloatCmder)
 }
 
 func (c *RedisConn) MGet(ctx context.Context, keys ...string) *InterfaceSliceCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, MGetCommand, internal.StringSlice2InterfaceSlice(keys)...)
+	return cmder.(*InterfaceSliceCmder)
 }
 
 func (c *RedisConn) MSet(ctx context.Context, values ...interface{}) *StringCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, MSetCommand, values...)
+	return cmder.(*StringCmder)
 }
 
 func (c *RedisConn) MSetNX(ctx context.Context, values ...interface{}) *BoolCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, MSetNXCommand, values...)
+	return cmder.(*BoolCmder)
 }
 
 func (c *RedisConn) SetRange(ctx context.Context, key string, offset int64, value string) *IntCmder {
