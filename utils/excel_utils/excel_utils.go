@@ -41,7 +41,7 @@ func ReadExcel(fileName string) ([][]string, error) {
 
 // ParseExcel 读取excel数据，通过row tag 转换成对象
 // @param fileName    文件名
-// @param resultPtr  是需要解析的数组interfa，只接受数组或者slice
+// @param resultPtr  是需要解析的数组interface，只接受数组或者slice
 // @param breakHeader 是否跳过第一行表头
 func ParseExcel(fileName string, resultPtr interface{}, breakHeader bool) error {
 	excelData, err := ReadExcel(fileName)
