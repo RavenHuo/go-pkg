@@ -156,11 +156,16 @@ func (c *RedisConn) HExists(ctx context.Context, key, field string) *BoolCmder {
 }
 
 func (c *RedisConn) HGet(ctx context.Context, key, field string) *StringCmder {
-	panic("implement me")
+	args := make([]interface{}, 0)
+	args = append(args, key)
+	args = append(args, field)
+	cmder := c.warpDo(ctx, HGetCommand, args)
+	return cmder.(*StringCmder)
 }
 
 func (c *RedisConn) HGetAll(ctx context.Context, key string) *StringStructMapCmder {
-	panic("implement me")
+	cmder := c.warpDo(ctx, HGetAllCommand, key)
+	return cmder.(*StringStructMapCmder)
 }
 
 func (c *RedisConn) HIncrBy(ctx context.Context, key, field string, incr int64) *IntCmder {
@@ -184,7 +189,11 @@ func (c *RedisConn) HMGet(ctx context.Context, key string, fields ...string) *In
 }
 
 func (c *RedisConn) HSet(ctx context.Context, key string, values ...interface{}) *IntCmder {
-	panic("implement me")
+	args := make([]interface{}, 0)
+	args = append(args, key)
+	args = append(args, values...)
+	cmder := c.warpDo(ctx, HSetCommand, args...)
+	return cmder.(*IntCmder)
 }
 
 func (c *RedisConn) HMSet(ctx context.Context, key string, values ...interface{}) *BoolCmder {

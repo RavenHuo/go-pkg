@@ -40,6 +40,9 @@ const (
 	MGetCommand        RedisCommand = "MGet"
 	MSetCommand        RedisCommand = "MSet"
 	MSetNXCommand      RedisCommand = "MSetNX"
+	HSetCommand        RedisCommand = "HSet"
+	HGetCommand        RedisCommand = "HGet"
+	HGetAllCommand     RedisCommand = "HGetAll"
 )
 
 // common
