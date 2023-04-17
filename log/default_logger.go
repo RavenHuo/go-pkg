@@ -58,6 +58,7 @@ func buildLogrus() *logrus.Logger {
 
 	//设置日志格式
 	logRus.SetFormatter(&logrus.TextFormatter{
+		ForceQuote:      true, //键值对加引号
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
 	return logRus
