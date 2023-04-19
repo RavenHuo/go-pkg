@@ -6,9 +6,9 @@
 package utils
 
 import (
-	"context"
 	"encoding/json"
-	"github.com/RavenHuo/go-kit/log"
+	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
 )
@@ -18,7 +18,7 @@ import (
  * @param value 要转换的对象，支持值和指针类型
  * @return string 返回的字符串值
  */
-func ToString(value interface{}) string {
+func ToString(value interface{}) (string, error) {
 	ev := reflect.ValueOf(value)
 	if reflect.ValueOf(value).Kind() == reflect.Ptr {
 		ev = reflect.ValueOf(value).Elem()
@@ -27,32 +27,31 @@ func ToString(value interface{}) string {
 		// []byte类型
 		bs, ok := ev.Interface().([]byte)
 		if ok {
-			return string(bs)
+			return string(bs), nil
 		}
 		str, err := json.Marshal(ev.Interface())
 		if err != nil {
-			log.Errorf(context.Background(), "toString json marshal err:%v", err)
+			return "", errors.New(fmt.Sprintf("toString json marshal err:%v", err))
 		}
 
-		return string(str)
+		return string(str), nil
 	} else {
 		// string类型
 		str, ok := ev.Interface().(string)
 		if ok {
-			return str
+			return str, nil
 		}
 		// []byte类型
 		bs, ok := ev.Interface().([]byte)
 		if ok {
-			return string(bs)
+			return string(bs), nil
 		}
 		// int类型
 		intVal, ok := ev.Interface().(int)
 		if ok {
-			return strconv.Itoa(intVal)
+			return strconv.Itoa(intVal), nil
 		}
 	}
 
-	log.Errorf(context.Background(), "toString unimplemented type:%v", reflect.TypeOf(value).Name())
-	return ""
+	return "", errors.New(fmt.Sprintf("toString unimplemented type:%v", reflect.TypeOf(value).Name()))
 }
