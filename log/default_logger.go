@@ -32,7 +32,7 @@ func buildLogrus() *logrus.Logger {
 	logrus.AddHook(newFileHook())
 	//设置日志级别
 	logRus.SetLevel(logrus.DebugLevel)
-
+	logrus.SetReportCaller(true)
 	//设置日志格式
 	logRus.SetFormatter(&logrus.TextFormatter{
 		ForceQuote:      true, //键值对加引号
