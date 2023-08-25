@@ -8,7 +8,7 @@ package distributed_lock
 import (
 	"context"
 	"errors"
-	"github.com/RavenHuo/go-kit/redis/redigo"
+	"github.com/RavenHuo/go-kit/redis/go_redis"
 	"time"
 
 	"github.com/RavenHuo/go-kit/utils"
@@ -33,7 +33,7 @@ const checkAndRenewScript = `
 const RELEASE_SUCCESS = 1
 
 type RedisDistributedLock struct {
-	redisPool *redigo.Pool
+	redisClient *go_redis.RedisClient
 
 	// 配置
 	option *DistributedLockOption
@@ -53,10 +53,10 @@ type RedisDistributedLock struct {
 	waitDuration time.Duration
 }
 
-func getRedisDistributedLock(redisPool *redigo.Pool, option *DistributedLockOption) (*RedisDistributedLock, error) {
+func getRedisDistributedLock(redisClient *go_redis.RedisClient, option *DistributedLockOption) (*RedisDistributedLock, error) {
 	lock := &RedisDistributedLock{
-		redisPool: redisPool,
-		option:    option,
+		redisClient: redisClient,
+		option:      option,
 	}
 	lock.uuId = utils.GetUuid()
 	return lock, nil
@@ -66,11 +66,6 @@ func (r *RedisDistributedLock) Lock(ctx context.Context, key string, expiredDura
 	if expiredDuration <= 0 || expiredDuration.Seconds() <= 0 {
 		return false, errors.New("[RedisDistributedLock]expiredDuration can not less than 0")
 	}
-	conn, connErr := r.redisPool.GetConn()
-	if connErr != nil {
-		return false, errors.New("[RedisDistributedLock.Lock]getConn failed")
-	}
-	defer conn.Close()
 
 	r.expiredDuration = expiredDuration
 	r.waitDuration = waitDuration
@@ -80,9 +75,9 @@ func (r *RedisDistributedLock) Lock(ctx context.Context, key string, expiredDura
 	waitTime := waitDuration
 	success := false
 	var err error
-	expiredTime := int64(r.expiredDuration.Seconds())
+	expiredTime := time.Duration(r.expiredDuration.Seconds())
 	for {
-		success, err = conn.SetNX(ctx, key, r.uuId, expiredTime).Result()
+		success, err = r.redisClient.SetNX(ctx, key, r.uuId, expiredTime).Result()
 		// 结束等待
 		if (err == nil && success == true) || waitTime == 0 || time.Since(startTime) > waitTime {
 			break
@@ -107,11 +102,8 @@ func (r *RedisDistributedLock) Unlock(ctx context.Context, key string) (bool, er
 	if isValidErr != nil || !pass {
 		return false, isValidErr
 	}
-	conn, connErr := r.redisPool.GetConn()
-	if connErr != nil {
-		return false, errors.New("[RedisDistributedLock.Lock]getConn failed")
-	}
-	result, err := conn.Eval(ctx, unlockScript, []string{key}, r.uuId).Result()
+
+	result, err := r.redisClient.Eval(ctx, unlockScript, []string{key}, r.uuId).Result()
 	if err != nil {
 		return false, err
 	}
@@ -123,12 +115,8 @@ func (r *RedisDistributedLock) Unlock(ctx context.Context, key string) (bool, er
 }
 
 func (r *RedisDistributedLock) renew(ctx context.Context) {
-	conn, connErr := r.redisPool.GetConn()
-	if connErr != nil {
-		return
-	}
 
-	result, err := conn.Eval(ctx, checkAndRenewScript, []string{r.key}, r.option.RenewSeconds).Result()
+	result, err := r.redisClient.Eval(ctx, checkAndRenewScript, []string{r.key}, r.option.RenewSeconds).Result()
 	if err != nil {
 		return
 	}

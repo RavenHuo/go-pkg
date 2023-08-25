@@ -6,21 +6,18 @@
 package distributed_lock
 
 import (
-	"github.com/RavenHuo/go-kit/redis/redigo"
+	"github.com/RavenHuo/go-kit/redis/go_redis"
+	"github.com/go-redis/redis/v8"
 )
 
 type RedisDistributedLockClient struct {
-	redisPool *redigo.Pool
+	redisClient *go_redis.RedisClient
 }
 
-func NewRedisDistributedLockClient(redisOptions *redigo.Options) (*RedisDistributedLockClient, error) {
-	redisPool, err := redigo.NewPool(redisOptions)
-	if err != nil {
-		return nil, err
-	}
+func NewRedisDistributedLockClient(opt *redis.Options) *RedisDistributedLockClient {
 	return &RedisDistributedLockClient{
-		redisPool: redisPool,
-	}, nil
+		redisClient: go_redis.NewRedisClient(opt),
+	}
 }
 
 func (c *RedisDistributedLockClient) GetLock(option *DistributedLockOption) (*RedisDistributedLock, error) {
@@ -28,5 +25,5 @@ func (c *RedisDistributedLockClient) GetLock(option *DistributedLockOption) (*Re
 	if err != nil {
 		return nil, err
 	}
-	return getRedisDistributedLock(c.redisPool, option)
+	return getRedisDistributedLock(c.redisClient, option)
 }
