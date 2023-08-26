@@ -14,9 +14,15 @@ type RedisDistributedLockClient struct {
 	redisClient *go_redis.RedisClient
 }
 
-func NewRedisDistributedLockClient(opt *redis.Options) *RedisDistributedLockClient {
+func New(opt *redis.Options) *RedisDistributedLockClient {
 	return &RedisDistributedLockClient{
 		redisClient: go_redis.NewRedisClient(opt),
+	}
+}
+
+func NewWithClient(redisClient *go_redis.RedisClient) *RedisDistributedLockClient {
+	return &RedisDistributedLockClient{
+		redisClient: redisClient,
 	}
 }
 
