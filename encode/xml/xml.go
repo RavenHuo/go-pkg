@@ -16,7 +16,7 @@ func (x xmlEncoder) Decode(d []byte, v interface{}) error {
 	return xml.Unmarshal(d, v)
 }
 
-func (x xmlEncoder) String() string {
+func (x xmlEncoder) Name() string {
 	return "xml"
 }
 

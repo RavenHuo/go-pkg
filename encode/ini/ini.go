@@ -20,7 +20,7 @@ func (i iniEncoder) Decode(d []byte, v interface{}) error {
 	return ini.Decode(d, v)
 }
 
-func (i iniEncoder) String() string {
+func (i iniEncoder) Name() string {
 	return "ini"
 }
 

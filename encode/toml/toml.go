@@ -23,7 +23,7 @@ func (t tomlEncoder) Decode(d []byte, v interface{}) error {
 	return toml.Unmarshal(d, v)
 }
 
-func (t tomlEncoder) String() string {
+func (t tomlEncoder) Name() string {
 	return "toml"
 }
 

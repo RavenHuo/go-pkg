@@ -25,7 +25,7 @@ func (j jsonEncoder) Decode(d []byte, v interface{}) error {
 	return json.Unmarshal(d, v)
 }
 
-func (j jsonEncoder) String() string {
+func (j jsonEncoder) Name() string {
 	return "json"
 }
 

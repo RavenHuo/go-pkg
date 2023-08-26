@@ -15,7 +15,7 @@ func (y yamlEncoder) Decode(d []byte, v interface{}) error {
 	return yaml.Unmarshal(d, v)
 }
 
-func (y yamlEncoder) String() string {
+func (y yamlEncoder) Name() string {
 	return "yaml"
 }
 
