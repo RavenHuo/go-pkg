@@ -1,0 +1,10 @@
+server:
+  name: conf
+  port: 8080
+
+register:
+  etcd_addr:
+    - 127.0.0.1:2379
+  keepalive_ttl: 10
+
+name: raven
