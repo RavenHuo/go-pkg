@@ -8,29 +8,29 @@ package log
 import "context"
 
 func Debug(ctx context.Context, msg string) {
-	getLogger().Debug(ctx, msg)
+	logger.Debug(ctx, msg)
 }
 func Debugf(ctx context.Context, format string, v ...interface{}) {
-	getLogger().Debugf(ctx, format, v...)
+	logger.Debugf(ctx, format, v...)
 }
 
 func Info(ctx context.Context, msg string) {
-	getLogger().Info(ctx, msg)
+	logger.Info(ctx, msg)
 }
 func Infof(ctx context.Context, format string, v ...interface{}) {
-	getLogger().Infof(ctx, format, v...)
+	logger.Infof(ctx, format, v...)
 }
 
 func Warn(ctx context.Context, msg string) {
-	getLogger().Warn(ctx, msg)
+	logger.Warn(ctx, msg)
 }
 func Warnf(ctx context.Context, format string, v ...interface{}) {
-	getLogger().Warnf(ctx, format, v...)
+	logger.Warnf(ctx, format, v...)
 }
 
 func Error(ctx context.Context, msg string) {
-	getLogger().Error(ctx, msg)
+	logger.Error(ctx, msg)
 }
 func Errorf(ctx context.Context, format string, v ...interface{}) {
-	getLogger().Errorf(ctx, format, v...)
+	logger.Errorf(ctx, format, v...)
 }

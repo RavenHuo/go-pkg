@@ -40,7 +40,7 @@ func (d *contextLogger) Debugf(ctx context.Context, format string, arg ...interf
 	d.logRus.WithContext(ctx).Debugf(format, arg...)
 }
 
-func BuildContextLogger() ILogger {
+func defaultLogger() ILogger {
 	return &contextLogger{
 		logRus: getLogrus(),
 	}

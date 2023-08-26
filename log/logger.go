@@ -34,5 +34,5 @@ func UseLogger(log ILogger) {
 }
 
 func init() {
-	logger = BuildContextLogger()
+	logger = defaultLogger()
 }
