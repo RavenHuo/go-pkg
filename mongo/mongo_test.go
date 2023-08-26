@@ -33,13 +33,7 @@ func (User) GetConfig() ModelConfig {
 var userModel User
 
 func TestNewMongoContext(t *testing.T) {
-	mongoConfig := &Options{
-		Retries:      2,
-		PoolMax:      200,
-		PoolSize:     100,
-		PrintNoClose: true,
-	}
-	NewMongo(mongoConfig, logrus.New())
+	NewMongo()
 
 	context := NewMongoContext(context2.Background())
 	defer context.Close()
