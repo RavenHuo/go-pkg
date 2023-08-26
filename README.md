@@ -1,1 +1,1 @@
-# go-kit
+# go-pkg

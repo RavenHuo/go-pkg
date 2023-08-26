@@ -1,10 +1,9 @@
-module github.com/RavenHuo/go-kit
+module github.com/RavenHuo/go-pkg
 
 go 1.16
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/garyburd/redigo v1.6.3
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/gookit/ini v1.1.1

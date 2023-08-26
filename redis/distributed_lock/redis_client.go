@@ -6,7 +6,7 @@
 package distributed_lock
 
 import (
-	"github.com/RavenHuo/go-kit/redis/go_redis"
+	"github.com/RavenHuo/go-pkg/redis/go_redis"
 	"github.com/go-redis/redis/v8"
 )
 

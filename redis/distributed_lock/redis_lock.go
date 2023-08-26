@@ -8,10 +8,10 @@ package distributed_lock
 import (
 	"context"
 	"errors"
-	"github.com/RavenHuo/go-kit/redis/go_redis"
+	"github.com/RavenHuo/go-pkg/redis/go_redis"
 	"time"
 
-	"github.com/RavenHuo/go-kit/utils"
+	"github.com/RavenHuo/go-pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 

@@ -2,12 +2,12 @@ package conf
 
 import (
 	"fmt"
-	"github.com/RavenHuo/go-kit/encode"
-	"github.com/RavenHuo/go-kit/encode/ini"
-	"github.com/RavenHuo/go-kit/encode/json"
-	"github.com/RavenHuo/go-kit/encode/toml"
-	"github.com/RavenHuo/go-kit/encode/xml"
-	"github.com/RavenHuo/go-kit/encode/yaml"
+	"github.com/RavenHuo/go-pkg/encode"
+	"github.com/RavenHuo/go-pkg/encode/ini"
+	"github.com/RavenHuo/go-pkg/encode/json"
+	"github.com/RavenHuo/go-pkg/encode/toml"
+	"github.com/RavenHuo/go-pkg/encode/xml"
+	"github.com/RavenHuo/go-pkg/encode/yaml"
 	"io/ioutil"
 	"os"
 	"strings"

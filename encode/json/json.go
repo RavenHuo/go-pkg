@@ -2,7 +2,7 @@ package json
 
 import (
 	"bytes"
-	"github.com/RavenHuo/go-kit/encode"
+	"github.com/RavenHuo/go-pkg/encode"
 
 	jsoniter "github.com/json-iterator/go"
 )

@@ -2,7 +2,7 @@ package etcd_client
 
 import (
 	"context"
-	"github.com/RavenHuo/go-kit/log"
+	"github.com/RavenHuo/go-pkg/log"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	"go.etcd.io/etcd/client/v3"
 	"time"

@@ -1,7 +1,7 @@
 package ini
 
 import (
-	"github.com/RavenHuo/go-kit/encode"
+	"github.com/RavenHuo/go-pkg/encode"
 
 	ini "github.com/gookit/ini/parser"
 )

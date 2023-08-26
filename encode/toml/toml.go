@@ -3,7 +3,7 @@ package toml
 import (
 	"bytes"
 
-	"github.com/RavenHuo/go-kit/encode"
+	"github.com/RavenHuo/go-pkg/encode"
 
 	"github.com/BurntSushi/toml"
 )

@@ -7,7 +7,7 @@ package trace
 
 import (
 	"context"
-	"github.com/RavenHuo/go-kit/utils"
+	"github.com/RavenHuo/go-pkg/utils"
 )
 
 const TraceIdField = "trace-id"

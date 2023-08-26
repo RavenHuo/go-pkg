@@ -3,7 +3,7 @@ package xml
 import (
 	"encoding/xml"
 
-	"github.com/RavenHuo/go-kit/encode"
+	"github.com/RavenHuo/go-pkg/encode"
 )
 
 type xmlEncoder struct{}

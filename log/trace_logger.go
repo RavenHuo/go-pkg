@@ -7,7 +7,7 @@ package log
 
 import (
 	"context"
-	"github.com/RavenHuo/go-kit/trace"
+	"github.com/RavenHuo/go-pkg/trace"
 	"github.com/sirupsen/logrus"
 )
 
