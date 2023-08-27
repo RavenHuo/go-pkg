@@ -23,6 +23,7 @@ type Configuration struct {
 	override      map[string]interface{} // key是字符串，value是 interface，也是map[string]interface{}
 	keyDelimiter  string                 // key的分隔符，默认是.
 	watchHandlers []WatchHandler         // 修改key的时候的处理方法
+	encoder       encode.Encoder
 }
 
 // Init init configuration
@@ -32,7 +33,7 @@ func Init(opts ...Opt) *Configuration {
 		o(options)
 	}
 
-	conf := &Configuration{}
+	c := &Configuration{}
 	dataMap := make(map[string]interface{})
 	// 解析器
 	encoder := parseEncoder(options.path)
@@ -46,12 +47,13 @@ func Init(opts ...Opt) *Configuration {
 	if err != nil {
 		panic(fmt.Sprintf("encode failed, fileContent:%s, encoder:%s, err:%s", fileContent, encoder.Name(), err))
 	}
-	conf.override = dataMap
-	conf.mu = &sync.RWMutex{}
-	conf.cacheMap = &sync.Map{}
-	conf.keyDelimiter = options.keyDelimiter
-	conf.watchHandlers = options.watchHandlers
-	return conf
+	c.override = dataMap
+	c.mu = &sync.RWMutex{}
+	c.cacheMap = &sync.Map{}
+	c.encoder = encoder
+	c.keyDelimiter = options.keyDelimiter
+	c.watchHandlers = options.watchHandlers
+	return c
 }
 
 func (conf *Configuration) Get(key string) interface{} {

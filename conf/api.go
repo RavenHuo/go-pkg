@@ -17,8 +17,9 @@ func GetString(key string) string {
 	return conf.Get(key).(string)
 }
 
-func GetStrArr(key string) []string {
-	return conf.Get(key).([]string)
+func GetObject(key string, result interface{}) {
+	marshalByte, _ := conf.encoder.Encode(conf.Get(key))
+	conf.encoder.Decode(marshalByte, result)
 }
 
 func Set(key string, value interface{}) {
