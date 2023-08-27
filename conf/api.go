@@ -10,6 +10,17 @@ func Get(key string) interface{} {
 	return conf.Get(key)
 }
 
+func GetInt(key string) int {
+	return conf.Get(key).(int)
+}
+func GetString(key string) string {
+	return conf.Get(key).(string)
+}
+
+func GetStrArr(key string) []string {
+	return conf.Get(key).([]string)
+}
+
 func Set(key string, value interface{}) {
 	conf.Set(key, value)
 }
