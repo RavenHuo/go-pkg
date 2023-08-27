@@ -7,6 +7,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/gookit/ini v1.1.1
+	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/json-iterator/go v1.1.11
 	github.com/sirupsen/logrus v1.8.1
 	github.com/xuri/excelize/v2 v2.7.0
