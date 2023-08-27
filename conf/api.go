@@ -6,6 +6,10 @@ func InitConf(opts ...Opt) {
 	conf = Init(opts...)
 }
 
+func GetConf() *Configuration {
+	return conf
+}
+
 func Get(key string) interface{} {
 	return conf.Get(key)
 }
