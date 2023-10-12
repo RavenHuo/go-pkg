@@ -6,7 +6,7 @@
 package mongo
 
 import (
-	context2 "context"
+	"context"
 	"github.com/sirupsen/logrus"
 	"testing"
 	"time"
@@ -35,10 +35,10 @@ var userModel User
 func TestNewMongoContext(t *testing.T) {
 	NewMongo()
 
-	context := NewMongoContext(context2.Background())
-	defer context.Close()
+	ctx := NewMongoContext(context.Background())
+	defer ctx.Close()
 	var user User
-	err := context.WithModel(&userModel).Query(bson.M{"user_id": 1}).FindOne(&user)
+	err := ctx.WithModel(&userModel).Query(bson.M{"user_id": 1}).FindOne(&user)
 	if err != nil {
 		logrus.Infof("err=%s", err.Error())
 	} else {
