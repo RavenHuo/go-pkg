@@ -45,3 +45,18 @@ func (cn *Conn) SetUsedAt(tm time.Time) {
 func (cn *Conn) SetNetConn(netConn net.Conn) {
 	cn.netConn = netConn
 }
+
+func (cn *Conn) GetNetConn() net.Conn {
+	return cn.netConn
+}
+
+func (cn *Conn) Ping() bool {
+
+	conn, err := net.DialTimeout("ip:icmp", cn.RemoteAddr().String(), 2*time.Second)
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+
+	return true
+}

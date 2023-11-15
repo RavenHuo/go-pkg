@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/RavenHuo/go-pkg/log"
+	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -11,16 +12,18 @@ import (
 
 var (
 	// ErrClosed performs any operation on the closed client will return this error.
-	ErrClosed = errors.New("redis: client is closed")
+	ErrClosed = errors.New("connection pool is closed")
 
 	// ErrPoolTimeout timed out waiting to get a connection from the connection pool.
-	ErrPoolTimeout = errors.New("redis: connection pool timeout")
+	ErrPoolTimeout = errors.New("connection pool timeout")
+	PoolReachLimit = errors.New("connection pool reach limit")
+	random         = rand.New(rand.NewSource(time.Now().UnixNano()))
 )
 
 // ConnPool 连接池
-// 1、核心连接数
+// 1、最少连接数
 // 2、最大连接数
-// 3、连接健康检查(TODO)
+// 3、连接健康检查
 // 4、空闲连接管理
 // 5、连接达到最长时间的时候重置连接
 type ConnPool struct {
@@ -43,21 +46,17 @@ func New(opts ...Option) *ConnPool {
 
 	pool := &ConnPool{
 		opt:       opt,
-		queue:     make(chan struct{}),
+		queue:     make(chan struct{}, opt.queueSize), // 有长度是因为要使用带缓冲区的channel
 		connsMu:   &sync.RWMutex{},
-		conns:     make([]*Conn, 0, opt.poolSize),
-		idleConns: make([]*Conn, 0, opt.poolSize),
+		conns:     make([]*Conn, 0, opt.maxConn),
+		idleConns: make([]*Conn, 0, opt.minConn),
 		poolSize:  0,
 		closedCh:  make(chan struct{}),
 	}
-	pool.connsMu.Lock()
-	defer pool.connsMu.Unlock()
 	pool.addMinIdleConns()
 
 	if opt.idleTimeout > 0 && opt.idleCheckFrequency > 0 {
-		go func() {
-			pool.idleCheck()
-		}()
+		go pool.idleCheck()
 	}
 
 	return pool
@@ -127,13 +126,13 @@ func (p *ConnPool) idleCheck() {
 func (p *ConnPool) CheckIdleConns() (int, error) {
 	var n int
 	for {
-		p.getTurn()
+		p.getQueue()
 
 		p.connsMu.Lock()
 		cn := p.RemoveIdleConn()
 		p.connsMu.Unlock()
 
-		p.freeTurn()
+		p.freeQueue()
 
 		// 这里cn不为空的话，那就是移除了一个连接
 		if cn != nil {
@@ -150,12 +149,12 @@ func (p *ConnPool) CheckIdleConns() (int, error) {
 }
 
 // 写queue
-func (p *ConnPool) getTurn() {
+func (p *ConnPool) getQueue() {
 	p.queue <- struct{}{}
 }
 
 // queue 出
-func (p *ConnPool) freeTurn() {
+func (p *ConnPool) freeQueue() {
 	<-p.queue
 }
 
@@ -186,7 +185,7 @@ func (p *ConnPool) RemoveIdleConn() *Conn {
 
 	// TODO 每次只检查第一个连接？
 	cn := p.idleConns[0]
-	if !p.isStaleConn(cn) {
+	if !p.isStaleConn(cn) && p.opt.minConn > 0 && p.poolSize > p.opt.minConn {
 		return nil
 	}
 
@@ -212,31 +211,51 @@ func (p *ConnPool) removeConn(cn *Conn) {
 }
 
 // 判断最小连接数
-func (p *ConnPool) checkMinIdleConns() bool {
-	if p.opt.minIdleConn == 0 {
+func (p *ConnPool) checkMinConns() bool {
+	if p.opt.minConn == 0 {
 		return false
 	}
-	if p.poolSize < p.opt.poolSize && p.idleConnsLen < p.opt.minIdleConn {
+	if p.poolSize < p.opt.minConn {
 		return true
 	}
 	return false
 }
 
-// 添加最少的空闲链接
-func (p *ConnPool) addMinIdleConns() {
-	for p.checkMinIdleConns() {
-		p.poolSize++
-		p.idleConnsLen++
+// 判断最小连接数
+func (p *ConnPool) checkMaxConns() bool {
+	if p.opt.maxConn == 0 {
+		return false
+	}
+	if p.poolSize < p.opt.maxConn {
+		return true
+	}
+	return false
+}
 
-		go func() {
-			err := p.addIdleConn()
-			if err != nil && err != ErrClosed {
-				p.connsMu.Lock()
-				p.poolSize--
-				p.idleConnsLen--
-				p.connsMu.Unlock()
-			}
-		}()
+// 添加最少的空闲链接,使用之前不需要加锁
+func (p *ConnPool) addMinIdleConns() {
+	for p.checkMinConns() {
+		p.addConns()
+	}
+}
+
+// 添加最多空闲连接
+func (p *ConnPool) addMaxConns() {
+	for p.checkMaxConns() {
+		p.addConns()
+	}
+}
+
+// 连接池添加连接
+func (p *ConnPool) addConns() {
+	p.poolSize++
+	p.idleConnsLen++
+	err := p.addIdleConn()
+	if err != nil && err != ErrClosed {
+		p.connsMu.Lock()
+		p.poolSize--
+		p.idleConnsLen--
+		p.connsMu.Unlock()
 	}
 }
 
@@ -292,4 +311,99 @@ func (p *ConnPool) IdleLen() int {
 	n := p.idleConnsLen
 	p.connsMu.Unlock()
 	return n
+}
+
+// 等待可用队列
+func (p *ConnPool) waitQueue(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	default:
+	}
+
+	select {
+	case p.queue <- struct{}{}:
+		return nil
+	default:
+	}
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case p.queue <- struct{}{}:
+		return nil
+	case <-time.After(p.opt.waitTimeout):
+		return ErrPoolTimeout
+	}
+}
+
+// 推出一个空闲链接
+func (p *ConnPool) popIdle() (*Conn, error) {
+	if p.closed() {
+		return nil, ErrClosed
+	}
+
+	n := len(p.idleConns)
+	if n == 0 {
+		return nil, nil
+	}
+
+	var cn *Conn
+
+	// 随机选一个空闲连接
+	idx := random.Intn(n)
+	cn = p.idleConns[idx]
+	p.idleConns = append(p.idleConns[:idx], p.idleConns[idx+1:]...)
+
+	p.idleConnsLen--
+
+	return cn, nil
+}
+
+func (p *ConnPool) Get(ctx context.Context) (*Conn, error) {
+	if p.closed() {
+		return nil, ErrClosed
+	}
+	if err := p.waitQueue(ctx); err != nil {
+		return nil, err
+	}
+
+	for {
+		p.connsMu.Lock()
+		cn, err := p.popIdle()
+		p.connsMu.Unlock()
+		// 这里的err只会返回closedErr ，既然已经关闭了，那也不用freeQueue了
+		if err != nil {
+			return nil, err
+		}
+
+		if cn == nil {
+			if p.checkMaxConns() {
+				p.addConns()
+				continue
+			} else {
+				break
+			}
+		}
+
+		if p.isStaleConn(cn) {
+			if closeErr := p.closeConn(cn); closeErr != nil {
+				p.removeConn(cn)
+			}
+			continue
+		}
+		return cn, nil
+	}
+	p.freeQueue()
+	return nil, PoolReachLimit
+}
+
+// Put 归还连接
+func (p *ConnPool) Put(ctx context.Context, cn *Conn) {
+
+	p.connsMu.Lock()
+	p.idleConns = append(p.idleConns, cn)
+	p.idleConnsLen++
+	p.connsMu.Unlock()
+	p.freeQueue()
 }
