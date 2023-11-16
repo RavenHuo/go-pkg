@@ -22,7 +22,7 @@ type options struct {
 func defaultOpt() *options {
 	return &options{
 		onDialer: func(ctx context.Context) (net.Conn, error) {
-			return net.Dial("tcp", "hw-sg-nono-test1.livenono.com:6379")
+			return net.Dial("tcp", "")
 		},
 		onClose: func(conn net.Conn) error {
 			log.Infof(context.Background(), "conn close :%s", conn.LocalAddr())
