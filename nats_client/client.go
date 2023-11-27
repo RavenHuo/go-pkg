@@ -31,8 +31,15 @@ func InitClient(opts *nats.Options, subject string) (*NatsClient, error) {
 	natsClient.NatsConn = natsConn
 	return natsClient, err
 }
+
+//发布订阅模型, 一个发布者, 多个订阅者, 多个订阅者都可以收到同一个消息
 func (natsClient *NatsClient) RegisterHandler(cb func(msg *nats.Msg)) {
 	natsClient.NatsConn.Subscribe(natsClient.Subject, cb)
+}
+
+// 队列模型, 一个发布者, 多个订阅者, 消息在多个消息中负载均衡分配, 分配给 A 消费者, 这个消息就不会再分配给其他消费者了
+func (natsClient *NatsClient) RegisterQueueHandler(queue string, cb func(msg *nats.Msg)) {
+	natsClient.NatsConn.QueueSubscribe(natsClient.Subject, queue, cb)
 }
 
 func (natsClient *NatsClient) Push(msg []byte) error {
