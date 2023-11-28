@@ -3,6 +3,7 @@ package connpool
 import (
 	"context"
 	"fmt"
+	"github.com/RavenHuo/go-pkg/log"
 	"net"
 	"sync/atomic"
 	"time"
@@ -72,12 +73,11 @@ func (cn *Conn) ReadWithContext(ctx context.Context, timeout time.Duration) ([]b
 
 	for {
 		// 接收最大的数据字节数为512
-		buf := make([]byte, 512)
-		len, err := cn.netConn.Read(buf)
+		len, err := cn.netConn.Read(buffer)
 		if err != nil {
 			break
 		}
-		buffer = append(buffer, buf[:len]...)
+		buffer = buffer[:len]
 	}
 
 	return buffer, nil
@@ -103,14 +103,14 @@ func (cn *Conn) isConnectionClosed() bool {
 		}
 
 		// 其他错误可能是连接真的断开了
-		fmt.Println("Error reading from connection:", err)
+		log.Errorf(context.Background(), "Error reading from connection: %s", err)
 		return true
 	}
 
 	// 重置读取超时时间
 	err = conn.SetReadDeadline(time.Time{})
 	if err != nil {
-		fmt.Println("Error resetting read deadline:", err)
+		log.Errorf(context.Background(), "Error resetting read deadline: %s", err)
 	}
 
 	// 如果以上都通过，则连接仍然打开
@@ -143,4 +143,15 @@ func (cn *Conn) deadline(ctx context.Context, timeout time.Duration) time.Time {
 	}
 
 	return noDeadline
+}
+
+func (cn *Conn) Ping() bool {
+
+	conn, err := net.DialTimeout("ip:icmp", cn.RemoteAddr().String(), 2*time.Second)
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+
+	return true
 }

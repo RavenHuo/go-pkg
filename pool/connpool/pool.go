@@ -234,9 +234,15 @@ func (p *ConnPool) checkMaxConns() bool {
 
 // 添加最少的空闲链接,使用之前不需要加锁
 func (p *ConnPool) addMinIdleConns() {
+	wg := sync.WaitGroup{}
 	for p.checkMinConns() {
-		p.addConns()
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			p.addConns()
+		}()
 	}
+	wg.Wait()
 }
 
 // 添加最多空闲连接
