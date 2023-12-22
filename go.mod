@@ -7,11 +7,9 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/gookit/ini v1.1.1
-	github.com/hashicorp/golang-lru v1.0.2 // indirect
+	github.com/hashicorp/golang-lru v1.0.2
 	github.com/json-iterator/go v1.1.11
-	github.com/nats-io/gnatsd v1.4.1 // indirect
-	github.com/nats-io/nats-server v1.4.1 // indirect
-	github.com/nats-io/nats.go v1.31.0 // indirect
+	github.com/nats-io/nats.go v1.31.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/xuri/excelize/v2 v2.7.0
 	go.etcd.io/etcd/api/v3 v3.5.0
