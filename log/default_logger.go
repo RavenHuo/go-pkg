@@ -25,18 +25,18 @@ func getLogrus() *logrus.Logger {
 func buildLogrus() *logrus.Logger {
 
 	//实例化
-	logRus := logrus.New()
+	lr := logrus.New()
 
 	//设置输出
-	logRus.Out = os.Stdout
-	logrus.AddHook(newFileHook())
+	lr.Out = os.Stdout
+	lr.AddHook(newFileHook())
 	//设置日志级别
-	logRus.SetLevel(logrus.DebugLevel)
-	logrus.SetReportCaller(true)
+	lr.SetLevel(logrus.DebugLevel)
+	lr.SetReportCaller(true)
 	//设置日志格式
-	logRus.SetFormatter(&logrus.TextFormatter{
+	lr.SetFormatter(&logrus.TextFormatter{
 		ForceQuote:      true, //键值对加引号
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
-	return logRus
+	return lr
 }

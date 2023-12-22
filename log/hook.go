@@ -8,6 +8,7 @@ package log
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	goLog "log"
 	"os"
 	"path"
 	"time"
@@ -15,7 +16,7 @@ import (
 
 // FileHook 文件输出钩子
 type FileHook struct {
-	logger *logrus.Logger
+	logger *goLog.Logger
 }
 
 func newFileHook() *FileHook {
@@ -40,8 +41,7 @@ func newFileHook() *FileHook {
 	if err != nil {
 		fmt.Println("err", err)
 	}
-	fileLogger := logrus.New()
-	fileLogger.SetOutput(src)
+	fileLogger := goLog.New(src, "", goLog.Lmsgprefix)
 	return &FileHook{
 		logger: fileLogger,
 	}
