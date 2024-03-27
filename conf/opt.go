@@ -1,5 +1,10 @@
 package conf
 
+import (
+	"fmt"
+	"github.com/RavenHuo/go-pkg/env"
+)
+
 const (
 	defaultKeyDelimiter = "."
 	defaultPath         = "etc/conf.yaml"
@@ -33,9 +38,15 @@ func WithWatchHandlers(watchHandlers []WatchHandler) Opt {
 
 func defaultOptions() *Options {
 	opts := &Options{
-		path:          defaultPath,
+		path:          getDefaultPath(),
 		keyDelimiter:  defaultKeyDelimiter,
 		watchHandlers: make([]WatchHandler, 0),
 	}
 	return opts
+}
+func getDefaultPath() string {
+	if env.GetEnv() == "" {
+		return defaultPath
+	}
+	return fmt.Sprintf("etc/conf_%s.yaml", env.DEV_ENV)
 }
