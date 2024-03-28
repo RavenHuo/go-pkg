@@ -25,6 +25,9 @@ func GetObject(key string, result interface{}) {
 	marshalByte, _ := conf.encoder.Encode(conf.Get(key))
 	conf.encoder.Decode(marshalByte, result)
 }
+func Parse(obj interface{}) error {
+	return conf.Parse(obj)
+}
 
 func Set(key string, value interface{}) {
 	conf.Set(key, value)

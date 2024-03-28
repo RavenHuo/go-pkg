@@ -89,6 +89,13 @@ func (conf *Configuration) Set(key string, value interface{}) {
 	conf.cacheMap.Store(key, value)
 }
 
+// Parse
+// obj 传参需要是指针
+func (conf *Configuration) Parse(obj interface{}) error {
+	marshalByte, _ := conf.encoder.Encode(conf.override)
+	return conf.encoder.Decode(marshalByte, obj)
+}
+
 func parseEncoder(path string) encode.Encoder {
 	var encoder encode.Encoder
 	if strings.HasSuffix(path, ".yaml") {
