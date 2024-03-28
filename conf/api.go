@@ -1,6 +1,6 @@
 package conf
 
-var conf = Init()
+var conf *Configuration
 
 func InitConf(opts ...Opt) {
 	conf = Init(opts...)
